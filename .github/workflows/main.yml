@@ -14,6 +14,7 @@ env:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    environment: "coder"
 
     steps:
       - name: Checkout code
@@ -66,9 +67,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: [Build]
     runs-on: ubuntu-latest
-    environment: 
-      name: Dev
-      url: 'http://dev.mymodel.endpoint'
+    environment: "coder"
     steps:
       - uses: actions/checkout@v3
       
