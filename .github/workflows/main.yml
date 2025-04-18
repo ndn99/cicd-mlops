@@ -1,0 +1,100 @@
+name: CI
+run-name: ${{ github.actor }} is learning GitHub Actions ML
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+env:
+  DB_FLAG: CI
+
+jobs:
+  Build:
+    runs-on: bim81929/mlflow
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3
+
+      - name: Copy files to target directory
+        run: |
+          cp -r dagster_mlflow_project /home/coder/dagster/
+          cp workspace.yaml /home/coder/dagster/
+
+  DeployDev:
+    name: Deploy to Dev 
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Dev
+      url: 'http://dev.mymodel.endpoint'
+    steps:
+      - uses: actions/checkout@v3
+      
+      # Cài đặt CLI của Coder
+      - name: Install Coder CLI
+        run: |
+          curl -L https://coder.com/install.sh | sh
+          coder --version
+      - name: Authenticate with Coder
+        run: |
+          echo ${{ secrets.CODER_SESSION_TOKEN }} | coder login ${{ env.CODER_URL }} --token
+
+      - name: Set workspace variables
+        run: |
+          echo "WORKSPACE_NAME=mlflow-dev-workspace" >> $GITHUB_ENV
+          echo "WORKSPACE_TEMPLATE=docker" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE=bim81929/mlflow" >> $GITHUB_ENV
+      - name: Check if workspace exists
+        id: check-workspace
+        run: |
+          if coder workspaces list | grep -q "${{ env.WORKSPACE_NAME }}"; then
+            echo "workspace_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "workspace_exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create new workspace
+        if: steps.check-workspace.outputs.workspace_exists == 'false'
+        run: |
+          # Kiểm tra template có tồn tại
+          if ! coder templates list | grep -q "${{ env.WORKSPACE_TEMPLATE }}"; then
+            echo "Template ${{ env.WORKSPACE_TEMPLATE }} không tồn tại!"
+            exit 1
+          fi
+          
+          # Tạo workspace mới với docker image chỉ định
+          coder create --yes "${{ env.WORKSPACE_NAME }}" \
+            --template "${{ env.WORKSPACE_TEMPLATE }}" \
+            --parameter "image=${{ env.DOCKER_IMAGE }}"
+          
+          # Đợi workspace sẵn sàng
+          echo "Đang đợi workspace khởi động..."
+          while [[ "$(coder workspaces list -o json | jq -r '.[] | select(.name=="${{ env.WORKSPACE_NAME }}") | .status')" != "RUNNING" ]]; do
+            sleep 10
+            echo "Vẫn đang đợi workspace khởi động..."
+          done
+          echo "Workspace đã sẵn sàng!"
+
+      - name: Restart workspace if not running
+        if: steps.check-workspace.outputs.workspace_exists == 'true'
+        run: |
+          WORKSPACE_STATUS=$(coder workspaces list -o json | jq -r '.[] | select(.name=="${{ env.WORKSPACE_NAME }}") | .status')
+          
+          if [[ "$WORKSPACE_STATUS" != "RUNNING" ]]; then
+            echo "Workspace đang ở trạng thái $WORKSPACE_STATUS, khởi động lại..."
+            coder restart --yes "${{ env.WORKSPACE_NAME }}"
+            
+            # Đợi workspace khởi động
+            echo "Đang đợi workspace khởi động lại..."
+            while [[ "$(coder workspaces list -o json | jq -r '.[] | select(.name=="${{ env.WORKSPACE_NAME }}") | .status')" != "RUNNING" ]]; do
+              sleep 10
+              echo "Vẫn đang đợi workspace khởi động..."
+            done
+            echo "Workspace đã sẵn sàng!"
+          else
+            echo "Workspace đã đang chạy, tiếp tục triển khai."
+          fi
