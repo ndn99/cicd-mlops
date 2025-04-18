@@ -13,16 +13,47 @@ env:
 
 jobs:
   Build:
-    runs-on: bim81929/mlflow
+    runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Copy files to target directory
+      # Set up Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Pull Docker image
         run: |
-          cp -r dagster_mlflow_project /home/coder/dagster/
-          cp workspace.yaml /home/coder/dagster/
+          docker pull bim81929/mlflow:latest
+      - name: Copy files to Docker container
+        run: |
+          # Tạo container tạm thời từ image
+          CONTAINER_ID=$(docker create bim81929/mlflow:latest)
+          
+          # Copy thư mục dagster_mlflow_project vào container
+          docker cp dagster_mlflow_project $CONTAINER_ID:/home/coder/dagster/
+          
+          # Copy file workspace.yaml vào container
+          docker cp workspace.yaml $CONTAINER_ID:/home/coder/dagster/
+          
+          # Commit container thành image mới
+          docker commit $CONTAINER_ID ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }}
+          
+          # Tạo tag latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/mlflow:latest
+          
+          # Xóa container tạm thời
+          docker rm $CONTAINER_ID
+      - name: Push modified Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/mlflow:latest
 
   DeployDev:
     name: Deploy to Dev 
