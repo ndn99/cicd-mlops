@@ -40,31 +40,13 @@ jobs:
           docker pull bim81929/mlflow:latest
       - name: Copy files to Docker container
         run: |
-          # Tạo container tạm thời từ image
-          CONTAINER_ID=$(docker create bim81929/mlflow:latest)
-          
-          # Copy thư mục dagster_mlflow_project vào container
-          docker cp dagster_mlflow_project $CONTAINER_ID:/home/coder/dagster/
-          
-          # Copy file workspace.yaml vào container
-          docker cp workspace.yaml $CONTAINER_ID:/home/coder/dagster/
-          
-          # Commit container thành image mới
-          docker commit $CONTAINER_ID ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }}
-          
-          # Tạo tag latest
-          docker tag ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/mlflow:latest
-          
-          # Xóa container tạm thời
-          docker rm $CONTAINER_ID
+          docker build -t bim81929/mlflow -f Dockerfile .
       - name: Push modified Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/mlflow:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/mlflow:latest
 
   DeployDev:
     name: Deploy to Dev 
-    if: github.event_name == 'pull_request'
     needs: [Build]
     runs-on: ubuntu-latest
     environment: "coder"
@@ -79,6 +61,7 @@ jobs:
       - name: Authenticate with Coder
         run: |
           echo ${{ secrets.CODER_SESSION_TOKEN }} | coder login ${{ env.CODER_URL }} --token
+          echo "Login OK!"
 
       - name: Set workspace variables
         run: |
