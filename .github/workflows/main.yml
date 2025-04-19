@@ -71,6 +71,7 @@ jobs:
         id: check-workspace
         run: |
           if coder workspaces list | grep -q "${{ env.WORKSPACE_NAME }}"; then
+            coder delete --yes "${{ env.WORKSPACE_NAME }}"
             echo "workspace_exists=true" >> $GITHUB_OUTPUT
           else
             echo "workspace_exists=false" >> $GITHUB_OUTPUT
@@ -78,7 +79,6 @@ jobs:
       - name: Create new workspace
         if: steps.check-workspace.outputs.workspace_exists == 'false'
         run: |
-          
           # Tạo workspace mới với docker image chỉ định
           coder create --yes "${{ env.WORKSPACE_NAME }}" \
             --template "${{ env.WORKSPACE_TEMPLATE }}"
