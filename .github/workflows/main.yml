@@ -14,7 +14,7 @@ env:
 jobs:
   # Build:
   #   runs-on: ubuntu-latest
-  #   environment: "coder"
+  #   environment: coder
 
   #   steps:
   #     - name: Checkout code
@@ -46,7 +46,7 @@ jobs:
     name: Deploy to Dev 
     # needs: [Build]
     runs-on: ubuntu-latest
-    environment: "coder"
+    environment: coder
     steps:
       - uses: actions/checkout@v3
       
@@ -59,7 +59,7 @@ jobs:
         run: |
           echo "Coder URL: ${{ env.CODER_URL }}"
           echo "Coder Token: ${{ secrets.CODER_SESSION_TOKEN }}"
-          echo ${{ secrets.CODER_SESSION_TOKEN }} | coder login http://157.10.186.119:8080 --token
+          coder login http://157.10.186.119:8080 --token "${{ secrets.CODER_SESSION_TOKEN }}"
           echo "Login OK!"
 
       - name: Set workspace variables
