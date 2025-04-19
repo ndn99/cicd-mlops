@@ -78,11 +78,6 @@ jobs:
       - name: Create new workspace
         if: steps.check-workspace.outputs.workspace_exists == 'false'
         run: |
-          # Kiểm tra template có tồn tại
-          if ! coder templates list | grep -q "${{ env.WORKSPACE_TEMPLATE }}"; then
-            echo "Template ${{ env.WORKSPACE_TEMPLATE }} không tồn tại!"
-            exit 1
-          fi
           
           # Tạo workspace mới với docker image chỉ định
           coder create --yes "${{ env.WORKSPACE_NAME }}" \
