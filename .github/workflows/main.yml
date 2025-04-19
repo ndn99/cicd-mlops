@@ -82,7 +82,7 @@ jobs:
           # Tạo workspace mới với docker image chỉ định
           coder create --yes "${{ env.WORKSPACE_NAME }}" \
             --template "${{ env.WORKSPACE_TEMPLATE }}" \
-            --parameter "docker_image=${{ env.DOCKER_IMAGE }}"
+            --parameter docker_image=${{ env.DOCKER_IMAGE }}
           
           # Đợi workspace sẵn sàng
           echo "Đang đợi workspace khởi động..."
