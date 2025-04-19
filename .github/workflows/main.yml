@@ -59,7 +59,7 @@ jobs:
         run: |
           echo "Coder URL: ${{ env.CODER_URL }}"
           echo "Coder Token: ${{ secrets.CODER_SESSION_TOKEN }}"
-          echo ${{ secrets.CODER_SESSION_TOKEN }} | coder login ${{ env.CODER_URL }} --token
+          echo ${{ secrets.CODER_SESSION_TOKEN }} | coder login http://157.10.186.119:8080 --token
           echo "Login OK!"
 
       - name: Set workspace variables
