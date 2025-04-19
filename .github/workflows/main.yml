@@ -80,7 +80,7 @@ jobs:
         run: |
           
           # Tạo workspace mới với docker image chỉ định
-          echo | coder create --yes "${{ env.WORKSPACE_NAME }}" \
+          coder create --yes "${{ env.WORKSPACE_NAME }}" \
             --template "${{ env.WORKSPACE_TEMPLATE }}"
           
           # Đợi workspace sẵn sàng
