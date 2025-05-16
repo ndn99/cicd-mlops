@@ -44,7 +44,7 @@ jobs:
 
   DeployDev:
     name: Deploy to Dev 
-    # needs: [Build]
+    needs: [Build]
     runs-on: ubuntu-latest
     environment: coder
     steps:
@@ -73,9 +73,12 @@ jobs:
           if coder list | grep -q "${{ env.WORKSPACE_NAME }}"; then
             coder delete --yes "${{ env.WORKSPACE_NAME }}"
             echo "workspace_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "workspace_exists=false" >> $GITHUB_OUTPUT
+            while coder list | grep -q "${{ env.WORKSPACE_NAME }}"; do
+              echo "Waiting for workspace to be deleted..."
+              sleep 10
+            done
           fi
+          echo "workspace_exists=false" >> $GITHUB_OUTPUT
       - name: Create new workspace
         if: steps.check-workspace.outputs.workspace_exists == 'false'
         run: |
