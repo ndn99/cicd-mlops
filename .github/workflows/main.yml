@@ -70,7 +70,7 @@ jobs:
       - name: Check if workspace exists
         id: check-workspace
         run: |
-          if coder workspaces list | grep -q "${{ env.WORKSPACE_NAME }}"; then
+          if coder list | grep -q "${{ env.WORKSPACE_NAME }}"; then
             coder delete --yes "${{ env.WORKSPACE_NAME }}"
             echo "workspace_exists=true" >> $GITHUB_OUTPUT
           else
