@@ -14,7 +14,7 @@ daily_schedule = ScheduleDefinition(
 
 @repository
 def dagster_mlflow_project():
-    print("hello")
+    print("hello hello")
     return [
         daily_job,
         daily_schedule,
