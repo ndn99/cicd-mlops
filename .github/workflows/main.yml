@@ -57,9 +57,9 @@ jobs:
           coder --version
       - name: Authenticate with Coder
         run: |
-          echo "Coder URL: ${{ env.CODER_URL }}"
+          echo "Coder URL: ${{ vars.CODER_URL }}"
           echo "Coder Token: ${{ secrets.CODER_SESSION_TOKEN }}"
-          coder login ${{ env.CODER_URL }} --token "${{ secrets.CODER_SESSION_TOKEN }}"
+          coder login ${{ vars.CODER_URL }} --token "${{ secrets.CODER_SESSION_TOKEN }}"
           echo "Login OK!"
 
       - name: Set workspace variables
