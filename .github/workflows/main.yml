@@ -53,7 +53,7 @@ jobs:
       # Cài đặt CLI của Coder
       - name: Install Coder CLI
         run: |
-          curl -L https://coder.com/install.sh | sh
+          curl -L https://2dde7e7hj6fem.pit-1.try.coder.app/install.sh | sh
           coder --version
       - name: Authenticate with Coder
         run: |
@@ -82,4 +82,4 @@ jobs:
         if: steps.check-workspace.outputs.workspace_exists == 'false'
         run: |
           # Tạo workspace mới với docker image chỉ định
-          coder create --yes mlflow-dev-workspace --template kubernetes --parameter cpu=4 --parameter memory=8192Mi --parameter home_disk_size=50Gi
+          coder create --yes mlflow-dev-workspace --template kubernetes --parameter cpu=4 --parameter memory=8GB --parameter home_disk_size=50GB
