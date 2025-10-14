@@ -13,7 +13,7 @@ env:
 
 jobs:
   Build:
-    runs-on: bim81929/mlflow
+    runs-on: bim81929/demo
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
