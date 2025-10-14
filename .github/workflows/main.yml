@@ -37,10 +37,10 @@ jobs:
           
       - name: Copy files to Docker container
         run: |
-          docker build -t bim81929/mlflow -f Dockerfile .
+          docker build -t bim81929/demo-app -f Dockerfile .
       - name: Push modified Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/mlflow:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/demo-app
 
   DeployDev:
     name: Deploy to Dev 

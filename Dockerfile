@@ -1,4 +1,4 @@
-FROM bim81929/mlflow-base
+FROM bim81929/demo
 
 USER coder
 
