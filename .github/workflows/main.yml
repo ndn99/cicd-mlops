@@ -65,8 +65,7 @@ jobs:
       - name: Set workspace variables
         run: |
           echo "WORKSPACE_NAME=mlflow-dev-workspace" >> $GITHUB_ENV
-          echo "WORKSPACE_TEMPLATE=docker" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE=bim81929/mlflow" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE=bim81929/demo-app" >> $GITHUB_ENV
       - name: Check if workspace exists
         id: check-workspace
         run: |
@@ -84,4 +83,4 @@ jobs:
         run: |
           # Tạo workspace mới với docker image chỉ định
           coder create --yes "${{ env.WORKSPACE_NAME }}" \
-            --template "${{ env.WORKSPACE_TEMPLATE }}"
+            --template "${{ vars.WORKSPACE_TEMPLATE }}"
