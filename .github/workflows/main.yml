@@ -82,4 +82,4 @@ jobs:
         if: steps.check-workspace.outputs.workspace_exists == 'false'
         run: |
           # Tạo workspace mới với docker image chỉ định
-          coder create --yes ${{ env.WORKSPACE_NAME }} --template ${{ vars.WORKSPACE_TEMPLATE }} --parameter cpu=4 --parameter memory=8192Mi --parameter home_disk_size=50Gi
+          coder create --yes mlflow-dev-workspace --template kubernetes --parameter cpu=4 --parameter memory=8192Mi --parameter home_disk_size=50Gi
